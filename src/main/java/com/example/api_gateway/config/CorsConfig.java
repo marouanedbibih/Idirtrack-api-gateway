@@ -14,6 +14,8 @@ public class CorsConfig {
     public CorsWebFilter corsWebFilter() {
         CorsConfiguration corsConfig = new CorsConfiguration();
         corsConfig.addAllowedOrigin("http://localhost:3000"); // Autoriser l'origine du frontend
+        corsConfig.addAllowedOrigin("http://localhost:3001"); // Autoriser l'origine du frontend
+        corsConfig.addAllowedOrigin("http://localhost:3002");
         corsConfig.addAllowedMethod("*"); // Autoriser toutes les méthodes HTTP
         corsConfig.addAllowedHeader("*"); // Autoriser tous les en-têtes
         corsConfig.setAllowCredentials(true); // Autoriser les credentials
