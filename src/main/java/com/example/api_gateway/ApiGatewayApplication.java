@@ -25,6 +25,11 @@ public class ApiGatewayApplication {
 	public RouteLocator customRouteLocator(RouteLocatorBuilder builder) {
 		return builder.routes()
 
+				// Handle OPTIONS requests globally
+				.route("options_route", r -> r.method("OPTIONS")
+						.filters(f -> f.setStatus(HttpStatus.OK))
+						.uri("lb://user-service"))
+
 				/**
 				 * Route for the login API, this is a public endpoint
 				 */

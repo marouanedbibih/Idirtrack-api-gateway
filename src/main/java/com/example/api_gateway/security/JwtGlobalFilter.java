@@ -47,6 +47,14 @@ public class JwtGlobalFilter implements WebFilter {
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         String path = exchange.getRequest().getPath().toString();
+        // Extract the method
+        String method = exchange.getRequest().getMethod().name();
+        logger.debug("Path: " + path);
+        logger.debug("Method: " + method);
+        if (method.equals("OPTIONS")) {
+            return chain.filter(exchange);
+
+        }
 
         // Bypass JWT validation for public paths
         if (PUBLIC_PATHS.contains(path)) {
@@ -63,13 +71,6 @@ public class JwtGlobalFilter implements WebFilter {
             }
             String token = authHeader.substring(7);
             logger.debug("Token: " + token);
-            // String authority = jwtUtils.extractRole(token);
-            // // Add the role to the request headers
-            // exchange.getRequest().mutate()
-            // .header("X-Authority", authority)
-            // .build();
-
-            // return chain.filter(exchange);
 
             // Call the user-service API to validate the token
             return webClientBuilder.build()
@@ -119,15 +120,6 @@ public class JwtGlobalFilter implements WebFilter {
     private Mono<Void> unauthorizedResponse(ServerWebExchange exchange, String message) {
         exchange.getResponse().setStatusCode(HttpStatus.UNAUTHORIZED);
         return exchange.getResponse().setComplete();
-    }
-
-    private void setSecurityContext(UserDTO userDTO) {
-        Authentication authentication = new UsernamePasswordAuthenticationToken(
-                userDTO.getUsername(), null, List.of(new SimpleGrantedAuthority(userDTO.getRole().name())));
-
-        SecurityContext context = SecurityContextHolder.createEmptyContext();
-        context.setAuthentication(authentication);
-        SecurityContextHolder.setContext(context);
     }
 
 }

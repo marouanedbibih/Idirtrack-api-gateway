@@ -21,23 +21,27 @@ import com.example.api_gateway.security.JwtGlobalFilter;
 @EnableWebFluxSecurity
 public class SecurityConfig {
 
-    @Autowired
-    private JwtGlobalFilter jwtFilter;
+        @Autowired
+        private JwtGlobalFilter jwtFilter;
 
-    @Bean
-    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) throws Exception {
-        // Disable CSRF
-        http.csrf(ServerHttpSecurity.CsrfSpec::disable);
-        // Authorize requests based on the URL and the role of the user
-        http.authorizeExchange(exchange -> exchange
-                .pathMatchers(HttpMethod.POST, "/user-api/auth/login", "/user-api/auth/register").permitAll() // Public routes
-                .anyExchange().authenticated() // All other routes require authentication
-        );
+        @Bean
+        public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) throws Exception {
+                // CORS config
+                http.cors(cors -> cors.disable());
+                // Disable CSRF
+                http.csrf(ServerHttpSecurity.CsrfSpec::disable);
+                // Authorize requests based on the URL and the role of the user
+                http.authorizeExchange(exchange -> exchange
+                                .pathMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+                                .pathMatchers(HttpMethod.POST, "/user-api/auth/login", "/user-api/auth/register")
+                                .permitAll() // Public routes
+                                .anyExchange().authenticated() // All other routes require authentication
+                );
 
+                // Add the JWT filter
+                http.addFilterBefore(jwtFilter, SecurityWebFiltersOrder.AUTHENTICATION);
 
-        // Add the JWT filter
-        http.addFilterBefore(jwtFilter, SecurityWebFiltersOrder.AUTHENTICATION); 
-
-        // http.httpBasic(Customizer.withDefaults());
-        return http.build();    }
+                // http.httpBasic(Customizer.withDefaults());
+                return http.build();
+        }
 }
